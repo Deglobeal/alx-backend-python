@@ -9,8 +9,8 @@ def stream_users_in_batches(batch_size):
     try:
         connection = mysql.connector.connect(
             host='localhost',
-            user='root', 
-            password='Dononye12@123',    
+            user='root',    
+            password='Dononye12@123',   
             database='ALX_prodev'
         )
         if connection.is_connected():
@@ -25,6 +25,7 @@ def stream_users_in_batches(batch_size):
             connection.close()
     except Error as e:
         print(f"Error: {e}")
+    return  # Explicit return at the end of the generator
 
 def batch_processing(batch_size):
     """
@@ -35,3 +36,4 @@ def batch_processing(batch_size):
         for user in batch:
             if user['age'] > 25:
                 print(user)
+    return  # Explicit return at the end of the function
