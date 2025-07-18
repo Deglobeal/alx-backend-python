@@ -23,7 +23,10 @@ class TestAccessNestedMap(unittest.TestCase):
     def test_access_nested_map_exception(self, nested_map, path, expected_message):
         with self.assertRaises(KeyError) as context:
             access_nested_map(nested_map, path)
-        self.assertEqual(str(context.exception), expected_message)
+        self.assertEqual(
+            str(context.exception),
+            expected_message
+        )
 
 
 class TestGetJson(unittest.TestCase):
@@ -40,7 +43,9 @@ class TestGetJson(unittest.TestCase):
         mock_get.return_value = mock_response
 
         result = get_json(test_url)
-        mock_get.assert_called_once_with(test_url)
+        mock_get.assert_called_once_with(
+            test_url
+        )
         self.assertEqual(result, test_payload)
 
 
