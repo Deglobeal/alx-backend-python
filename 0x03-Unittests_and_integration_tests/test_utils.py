@@ -5,13 +5,13 @@ from utils import access_nested_map
 
 
 class TestAccessNestedMap(unittest.TestCase):
-    """Unit tests for access_nested_map"""
+    """Tests for the access_nested_map function"""
 
     @parameterized.expand([
-        ("key_missing_in_empty_map", {}, ("a",), "a"),
-        ("key_missing_in_nested_path", {"a": 1}, ("a", "b"), "b"),
+        ("key_missing_in_empty_map", {}, ("a",), "'a'"),
+        ("key_missing_in_nested_path", {"a": 1}, ("a", "b"), "'b'"),
     ])
-    def test_access_nested_map_exception(self, name, nested_map, path, expected_key):
+    def test_access_nested_map_exception(self, name, nested_map, path, expected_message):
         with self.assertRaises(KeyError) as context:
             access_nested_map(nested_map, path)
-        self.assertEqual(str(context.exception), repr(expected_key))
+        self.assertEqual(str(context.exception), expected_message)
