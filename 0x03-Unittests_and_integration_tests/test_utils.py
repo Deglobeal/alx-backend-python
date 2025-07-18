@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+"""Unit tests for utility functions."""
+
 import unittest
 from unittest.mock import patch, Mock
 from parameterized import parameterized
@@ -20,7 +22,8 @@ class TestAccessNestedMap(unittest.TestCase):
         ({}, ("a",), "'a'"),
         ({"a": 1}, ("a", "b"), "'b'"),
     ])
-    def test_access_nested_map_exception(self, nested_map, path, expected_message):
+    def test_access_nested_map_exception(
+            self, nested_map, path, expected_message):
         with self.assertRaises(KeyError) as context:
             access_nested_map(nested_map, path)
         self.assertEqual(
@@ -53,6 +56,7 @@ class TestGetJson(unittest.TestCase):
 
 
 class TestMemoize(unittest.TestCase):
+    """Tests for memoize decorator"""
     def test_memoize(self):
         class TestClass:
             def a_method(self):
@@ -62,7 +66,8 @@ class TestMemoize(unittest.TestCase):
             def a_property(self):
                 return self.a_method()
 
-        with patch.object(TestClass, "a_method", return_value=42) as mock_method:
+        with patch.object(
+                TestClass, "a_method", return_value=42) as mock_method:
             obj = TestClass()
             result1 = obj.a_property
             result2 = obj.a_property
