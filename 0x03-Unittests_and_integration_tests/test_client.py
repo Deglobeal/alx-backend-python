@@ -2,10 +2,10 @@
 """Unit tests for GithubOrgClient."""
 
 import unittest
-from unittest.mock import patch, PropertyMock
+from unittest.mock import patch, PropertyMock, Mock
 from parameterized import parameterized, parameterized_class
-from client import GithubOrgClient
-import fixtures  # Assuming fixtures.py is available
+from .client import GithubOrgClient
+from . import fixtures  # Use relative import if fixtures.py is in the same directory
 
 
 class TestGithubOrgClient(unittest.TestCase):
@@ -86,11 +86,11 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
 
         def side_effect(url, *args, **kwargs):
             if url == "https://api.github.com/orgs/google":
-                mock_resp = unittest.mock.Mock()
+                mock_resp = Mock()
                 mock_resp.json.return_value = cls.org_payload
                 return mock_resp
             elif url == "https://api.github.com/orgs/google/repos":
-                mock_resp = unittest.mock.Mock()
+                mock_resp = Mock()
                 mock_resp.json.return_value = cls.repos_payload
                 return mock_resp
             raise ValueError(f"Unmocked url {url}")
