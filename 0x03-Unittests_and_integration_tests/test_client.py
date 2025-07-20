@@ -9,6 +9,7 @@ from client import GithubOrgClient
 # Import test payloads directly from fixtures
 from fixtures import TEST_PAYLOAD
 
+
 class TestGithubOrgClient(unittest.TestCase):
     """Tests for GithubOrgClient methods."""
 
@@ -70,6 +71,7 @@ class TestGithubOrgClient(unittest.TestCase):
         result = client.has_license(repo, license_key)
         self.assertEqual(result, expected)
 
+
 @parameterized_class(
     ("org_payload", "repos_payload", "expected_repos", "apache2_repos"),
     TEST_PAYLOAD  # Use the imported TEST_PAYLOAD directly
@@ -106,13 +108,14 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
         client = GithubOrgClient("google")
         self.assertEqual(client.public_repos(), self.expected_repos)
 
-    def test_public_repos_with_apache2_license(self):
+    def test_public_repos_with_license(self):
         """Test public_repos filters by license."""
         client = GithubOrgClient("google")
         self.assertEqual(
             client.public_repos(license_key="apache-2.0"),
             self.apache2_repos
         )
+
 
 if __name__ == "__main__":
     unittest.main()
