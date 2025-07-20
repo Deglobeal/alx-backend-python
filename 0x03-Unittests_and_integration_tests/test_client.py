@@ -47,7 +47,9 @@ class TestGithubOrgClient(unittest.TestCase):
         mock_get_json.return_value = repos_payload
 
         client = GithubOrgClient("test_org")
-        with patch.object(GithubOrgClient, "_public_repos_url", new_callable=PropertyMock) as mock_url:
+        with patch.object(
+            GithubOrgClient, "_public_repos_url", new_callable=PropertyMock
+        ) as mock_url:
             mock_url.return_value = "http://fakeurl/api/repos"
             repos = client.public_repos()
 
@@ -83,7 +85,7 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """Set up mock for requests.get."""
-        cls.get_patcher = patch('utils.requests.get')
+        cls.get_patcher = patch('client.requests.get')
         cls.mock_get = cls.get_patcher.start()
 
         def side_effect(url, *args, **kwargs):
