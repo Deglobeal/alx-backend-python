@@ -53,51 +53,24 @@ class TestGetJson(unittest.TestCase):
             result,
             test_payload
         )
-        def test_memoize_multiple_calls(self):
-            """Test that memoize caches result after first call."""
-            class TestClass:
-                def __init__(self):
-                    self.counter = 0
 
-                def a_method(self):
-                    self.counter += 1
-                    return self.counter
 
-                @memoize
-                def a_property(self):
-                    return self.a_method()
+class TestMemoize(unittest.TestCase):
+    """Tests for memoize decorator"""
+    def test_memoize(self):
+        class TestClass:
+            def a_method(self):
+                return 42
 
+            @memoize
+            def a_property(self):
+                return self.a_method()
+
+        with patch.object(
+                TestClass, "a_method", return_value=42) as mock_method:
             obj = TestClass()
-            first = obj.a_property
-            second = obj.a_property
-            third = obj.a_property
-            self.assertEqual(first, 1)
-            self.assertEqual(second, 1)
-            self.assertEqual(third, 1)
-            self.assertEqual(obj.counter, 1)
-
-        def test_memoize_different_instances(self):
-            """Test that memoize does not share cache between instances."""
-            class TestClass:
-                def __init__(self, value):
-                    self.value = value
-
-                @memoize
-                def a_property(self):
-                    return self.value
-
-            obj1 = TestClass(10)
-            obj2 = TestClass(20)
-            self.assertEqual(obj1.a_property, 10)
-            self.assertEqual(obj2.a_property, 20)
-
-        def test_memoize_with_args(self):
-            """Test that memoize ignores method arguments (should only work for properties)."""
-            class TestClass:
-                @memoize
-                def a_property(self):
-                    return 99
-
-            obj = TestClass()
-            self.assertEqual(obj.a_property, 99)
-            self.assertEqual(obj.a_property, 99)
+            result1 = obj.a_property
+            result2 = obj.a_property
+            self.assertEqual(result1, 42)
+            self.assertEqual(result2, 42)
+            mock_method.assert_called_once()
