@@ -7,7 +7,6 @@ from parameterized import parameterized, parameterized_class
 from client import GithubOrgClient
 import fixtures
 
-
 class TestGithubOrgClient(unittest.TestCase):
     """Tests for GithubOrgClient methods."""
 
@@ -69,7 +68,6 @@ class TestGithubOrgClient(unittest.TestCase):
         result = client.has_license(repo, license_key)
         self.assertEqual(result, expected)
 
-
 @parameterized_class(
     ("org_payload", "repos_payload", "expected_repos", "apache2_repos"),
     [
@@ -120,3 +118,7 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
             client.public_repos(license_key="apache-2.0"),
             self.apache2_repos
         )
+
+if __name__ == "__main__":
+    unittest.main()
+    
