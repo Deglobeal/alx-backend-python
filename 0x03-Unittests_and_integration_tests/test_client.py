@@ -70,14 +70,7 @@ class TestGithubOrgClient(unittest.TestCase):
 
 @parameterized_class(
     ("org_payload", "repos_payload", "expected_repos", "apache2_repos"),
-    [
-        (
-            fixtures.org_payload,
-            fixtures.repos_payload,
-            fixtures.expected_repos,
-            fixtures.apache2_repos,
-        )
-    ]
+    fixtures.TEST_PAYLOAD  # Corrected: Use the TEST_PAYLOAD list from fixtures
 )
 class TestIntegrationGithubOrgClient(unittest.TestCase):
     """Integration tests for GithubOrgClient."""
@@ -121,4 +114,3 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-    
