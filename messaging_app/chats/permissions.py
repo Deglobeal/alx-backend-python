@@ -4,27 +4,35 @@ from .models import Conversation
 class IsParticipantOfConversation(BasePermission):
     """
     Custom permission to only allow participants of a conversation to access it.
+    Handles all HTTP methods (GET, POST, PUT, PATCH, DELETE)
     """
     def has_permission(self, request, view):
         # Allow only authenticated users
         if not request.user.is_authenticated:
             return False
-        
-        # For non-conversation actions, only require authentication
-        if view.basename != 'conversation-messages':
-            return True
             
         # For messages, check conversation participation
-        conversation_id = view.kwargs.get('conversation_pk')
-        if not conversation_id:
-            return False
-            
-        try:
-            conversation = Conversation.objects.get(pk=conversation_id)
-            return conversation.participants.filter(id=request.user.id).exists()
-        except Conversation.DoesNotExist:
-            return False
+        if view.basename == 'conversation-messages':
+            conversation_id = view.kwargs.get('conversation_pk')
+            if not conversation_id:
+                return False
+                
+            try:
+                conversation = Conversation.objects.get(pk=conversation_id)
+                return conversation.participants.filter(id=request.user.id).exists()
+            except Conversation.DoesNotExist:
+                return False
+                
+        # For other endpoints, only require authentication
+        return True
 
     def has_object_permission(self, request, view, obj):
-        # Allow only conversation participants to interact with messages
-        return obj.conversation.participants.filter(id=request.user.id).exists()
+        # For messages, check if user is participant in the conversation
+        if view.basename == 'conversation-messages':
+            return obj.conversation.participants.filter(id=request.user.id).exists()
+            
+        # For conversations, check if user is participant
+        if isinstance(obj, Conversation):
+            return obj.participants.filter(id=request.user.id).exists()
+            
+        return True

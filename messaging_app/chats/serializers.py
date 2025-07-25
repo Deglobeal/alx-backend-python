@@ -1,10 +1,7 @@
 from rest_framework import serializers
 from .models import User, Conversation, Message
 
-
 class UserSerializer(serializers.ModelSerializer):
-    phone_number = serializers.CharField()  # Explicit CharField for check
-
     class Meta:
         model = User
         fields = [
@@ -16,10 +13,10 @@ class UserSerializer(serializers.ModelSerializer):
             'phone_number'
         ]
 
-
 class MessageSerializer(serializers.ModelSerializer):
     sender = UserSerializer(read_only=True)
     sender_name = serializers.SerializerMethodField()
+    conversation = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = Message
@@ -31,15 +28,15 @@ class MessageSerializer(serializers.ModelSerializer):
             'message_body',
             'sent_at'
         ]
+        read_only_fields = ['sender', 'conversation']
 
     def get_sender_name(self, obj):
         return f"{obj.sender.first_name} {obj.sender.last_name}"
 
-
 class ConversationSerializer(serializers.ModelSerializer):
     participants = UserSerializer(many=True, read_only=True)
-    messages = MessageSerializer(many=True, read_only=True, source='messages')
-    topic = serializers.CharField(required=False)  # for validation example
+    messages = MessageSerializer(many=True, read_only=True)
+    topic = serializers.CharField(required=False)
 
     class Meta:
         model = Conversation
