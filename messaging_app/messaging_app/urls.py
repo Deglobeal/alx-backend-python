@@ -24,7 +24,6 @@ from rest_framework_simplejwt.views import (
 from chats import views  # Import views from your 'chats' app
 
 urlpatterns = [
-    path('', views.root_view, name='root'),
     path('admin/', admin.site.urls),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
