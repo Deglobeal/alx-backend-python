@@ -1,7 +1,7 @@
-from rest_framework.permissions import BasePermission
+from rest_framework import permissions
 from .models import Conversation
 
-class IsParticipantOfConversation(BasePermission):
+class IsParticipantOfConversation(permissions.BasePermission):
     """
     Custom permission to only allow participants of a conversation to access it.
     Handles all HTTP methods (GET, POST, PUT, PATCH, DELETE)
@@ -37,7 +37,7 @@ class IsParticipantOfConversation(BasePermission):
             
         return True
 
-class IsOwner(BasePermission):
+class IsOwner(permissions.BasePermission):
     """
     Custom permission to only allow owners of an object to access it.
     """
