@@ -1,6 +1,7 @@
 from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.decorators import action
 from django.contrib.auth import get_user_model
 from django.http import HttpResponse
@@ -65,3 +66,16 @@ class MessageViewSet(viewsets.ModelViewSet):
             sender=self.request.user, 
             conversation=conversation
         )
+
+# Add this function to handle the root view
+def root_view(request):
+    return HttpResponse("""
+    <h1>Messaging App API</h1>
+    <p>Available endpoints:</p>
+    <ul>
+        <li><a href="/api/token/">JWT Token Obtain</a></li>
+        <li><a href="/api/token/refresh/">JWT Token Refresh</a></li>
+        <li><a href="/api/">API Root</a></li>
+        <li><a href="/admin/">Admin Panel</a></li>
+    </ul>
+    """)

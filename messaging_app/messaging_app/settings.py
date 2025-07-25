@@ -119,7 +119,7 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.2/howto/static-files/
+# https://docs.djangoproject.com/en/5.2/howto/static-files/S
 
 STATIC_URL = 'static/'
 
@@ -141,11 +141,13 @@ REST_FRAMEWORK = {
     ],
 }
 
+# JWT Settings
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
+    'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
 AUTH_USER_MODEL = 'chats.User'  # Custom user model
