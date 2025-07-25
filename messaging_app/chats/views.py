@@ -1,18 +1,23 @@
 from rest_framework import viewsets, status
-from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.decorators import action
 from django.contrib.auth import get_user_model
 from django.http import HttpResponse
 from django.db.models.query import QuerySet
+from django.shortcuts import get_object_or_404
 from .models import User, Conversation, Message
 from .serializers import UserSerializer, ConversationSerializer, MessageSerializer
 from .permissions import IsParticipantOfConversation
 
 User = get_user_model()
 
+
 class ConversationViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing conversations.
+    """
     serializer_class = ConversationSerializer
     permission_classes = [IsAuthenticated]
     queryset = Conversation.objects.none()
@@ -28,28 +33,28 @@ class ConversationViewSet(viewsets.ModelViewSet):
     def add_participant(self, request, pk=None):
         conversation = self.get_object()
         user_id = request.data.get('user_id')
-
-        try:
-            user = User.objects.get(id=user_id)
-        except User.DoesNotExist:
-            return Response({"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+        user = get_object_or_404(User, id=user_id)
 
         conversation.participants.add(user)
         return Response({"status": "User added to conversation"}, status=status.HTTP_200_OK)
 
 
 class MessageViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing messages in conversations.
+    Only participants can view, send, update, or delete messages.
+    """
     serializer_class = MessageSerializer
     permission_classes = [IsAuthenticated, IsParticipantOfConversation]
-    queryset = Message.objects.none()
+    queryset = Message.objects.all()
 
     def get_queryset(self) -> QuerySet:
         user = self.request.user
         queryset = Message.objects.filter(conversation__participants=user)
 
         conversation_id = self.request.GET.get('conversation')
-        if conversation_id:
-            queryset = queryset.filter(conversation__conversation_id=conversation_id)
+        if conversation_id and conversation_id.isdigit():
+            queryset = queryset.filter(conversation__id=int(conversation_id))
         return queryset
 
     def perform_create(self, serializer):
