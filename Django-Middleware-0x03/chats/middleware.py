@@ -2,6 +2,8 @@
 
 from datetime import datetime
 from django.http import HttpResponseForbidden
+import time
+from django.http import JsonResponse
 
 class RestrictAccessByTimeMiddleware:
     def __init__(self, get_response):
@@ -17,7 +19,6 @@ class RestrictAccessByTimeMiddleware:
     
 # chats/middleware.py
 
-import time
 
 class RequestLoggingMiddleware:
     def __init__(self, get_response):
@@ -42,9 +43,6 @@ class RequestLoggingMiddleware:
 
         return response
 
-
-import time
-from django.http import JsonResponse
 
 class OffensiveLanguageMiddleware:
     def __init__(self, get_response):
@@ -86,3 +84,22 @@ class OffensiveLanguageMiddleware:
             ip = request.META.get('REMOTE_ADDR')
         return ip
 
+class RolepermissionMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        # Apply only to restricted endpoints. Adjust path or methods as needed.
+        restricted_paths = ["/chat/delete/", "/chat/admin/"]  # example protected routes
+        if request.path in restricted_paths:
+            if not request.user.is_authenticated:
+                return JsonResponse({"error": "Authentication required"}, status=403)
+
+            # Assuming user role is stored in request.user.role or user.profile.role
+            # Replace this logic based on your model setup
+            user_role = getattr(request.user, 'role', None)
+
+            if user_role not in ["admin", "moderator"]:
+                return JsonResponse({"error": "Forbidden: insufficient permissions"}, status=403)
+
+        return self.get_response(request)
