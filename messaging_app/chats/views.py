@@ -7,9 +7,13 @@ from django.contrib.auth import get_user_model
 from django.http import HttpResponse
 from django.db.models.query import QuerySet
 from django.shortcuts import get_object_or_404
+from django.db.models import Q
 from .models import User, Conversation, Message
 from .serializers import UserSerializer, ConversationSerializer, MessageSerializer
 from .permissions import IsParticipantOfConversation
+from .pagination import MessagePagination
+from .filters import MessageFilter
+from django_filters import rest_framework as filters
 
 User = get_user_model()
 
@@ -44,6 +48,9 @@ class MessageViewSet(viewsets.ModelViewSet):
     """
     serializer_class = MessageSerializer
     permission_classes = [IsAuthenticated, IsParticipantOfConversation]
+    pagination_class = MessagePagination
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = MessageFilter
     queryset = Message.objects.all()
 
     def get_queryset(self) -> QuerySet:
@@ -54,7 +61,7 @@ class MessageViewSet(viewsets.ModelViewSet):
             return Message.objects.filter(
                 conversation__id=conversation_id,
                 conversation__participants=user
-            )
+            ).order_by('-sent_at')
         return Message.objects.none()
 
     def perform_create(self, serializer):
@@ -67,7 +74,6 @@ class MessageViewSet(viewsets.ModelViewSet):
             conversation=conversation
         )
 
-# Add this function to handle the root view
 def root_view(request):
     return HttpResponse("""
     <h1>Messaging App API</h1>

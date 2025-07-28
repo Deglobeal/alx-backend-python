@@ -1,5 +1,5 @@
 from rest_framework import permissions
-from .models import Conversation
+from .models import Conversation, Message
 
 class IsParticipantOfConversation(permissions.BasePermission):
     """
