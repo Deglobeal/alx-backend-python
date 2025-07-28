@@ -42,3 +42,47 @@ class RequestLoggingMiddleware:
 
         return response
 
+
+import time
+from django.http import JsonResponse
+
+class OffensiveLanguageMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+        # Store timestamps of messages per IP
+        self.ip_message_times = {}
+
+    def __call__(self, request):
+        if request.method == "POST" and request.path.startswith("/chat/"):  # Adjust path as needed
+            ip = self.get_client_ip(request)
+            current_time = time.time()
+            window = 60  # seconds (1 minute)
+            limit = 5    # max messages per window
+
+            if ip not in self.ip_message_times:
+                self.ip_message_times[ip] = []
+
+            # Remove timestamps outside the time window
+            self.ip_message_times[ip] = [t for t in self.ip_message_times[ip] if current_time - t < window]
+
+            if len(self.ip_message_times[ip]) >= limit:
+                return JsonResponse(
+                    {"error": "Message limit exceeded. Please wait before sending more messages."},
+                    status=429,
+                )
+
+            # Log this message timestamp
+            self.ip_message_times[ip].append(current_time)
+
+        response = self.get_response(request)
+        return response
+
+    def get_client_ip(self, request):
+        """Get client IP address from request headers."""
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+        return ip
+
