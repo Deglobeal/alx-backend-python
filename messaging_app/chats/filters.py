@@ -1,19 +1,16 @@
+# messaging_app/chats/filters.py
+
 import django_filters
 from .models import Message
+from django.contrib.auth.models import User
+from django.utils import timezone
 
 class MessageFilter(django_filters.FilterSet):
-    sender = django_filters.CharFilter(field_name='sender__username')
-    start_date = django_filters.DateTimeFilter(
-        field_name='sent_at', 
-        lookup_expr='gte',
-        label='Messages after this date/time'
-    )
-    end_date = django_filters.DateTimeFilter(
-        field_name='sent_at', 
-        lookup_expr='lte',
-        label='Messages before this date/time'
-    )
-    
+    sender = django_filters.ModelChoiceFilter(queryset=User.objects.all())
+    recipient = django_filters.ModelChoiceFilter(queryset=User.objects.all())
+    created_after = django_filters.DateTimeFilter(field_name='timestamp', lookup_expr='gte')
+    created_before = django_filters.DateTimeFilter(field_name='timestamp', lookup_expr='lte')
+
     class Meta:
         model = Message
-        fields = ['sender', 'start_date', 'end_date']
+        fields = ['sender', 'recipient', 'created_after', 'created_before']
