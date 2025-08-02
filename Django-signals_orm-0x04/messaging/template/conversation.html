@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Conversation with {{ other_user.username }}</title>
+    <style>
+        .thread-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 1.5rem;
+        }
+        
+        .message {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+        
+        .reply {
+            margin-left: 3rem;
+            border-left: 3px solid #4361ee;
+            padding-left: 1rem;
+        }
+        
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        
+        .sender {
+            font-weight: bold;
+        }
+        
+        .timestamp {
+            color: #6c757d;
+            font-size: 0.85rem;
+        }
+        
+        .reply-form {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: #e9ecef;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="thread-container">
+        <h1>Conversation with {{ other_user.username }}</h1>
+        
+        {% for message in messages %}
+        <div class="message">
+            <div class="message-header">
+                <span class="sender">{{ message.sender.username }}</span>
+                <span class="timestamp">{{ message.timestamp|date:"M d, Y H:i" }}</span>
+            </div>
+            <p>{{ message.content }}</p>
+            
+            {% if message.replies.all %}
+            <h3>Replies:</h3>
+            <div class="replies">
+                {% for reply in message.replies.all %}
+                <div class="message reply">
+                    <div class="message-header">
+                        <span class="sender">{{ reply.sender.username }}</span>
+                        <span class="timestamp">{{ reply.timestamp|date:"M d, Y H:i" }}</span>
+                    </div>
+                    <p>{{ reply.content }}</p>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <div class="reply-form">
+                <form method="post" action="{% url 'create_reply' message.id %}">
+                    {% csrf_token %}
+                    <textarea name="content" rows="3" placeholder="Reply to this message..." required></textarea>
+                    <button type="submit">Send Reply</button>
+                </form>
+            </div>
+        </div>
+        {% empty %}
+        <p>No messages in this conversation yet.</p>
+        {% endfor %}
+    </div>
+</body>
+</html>
