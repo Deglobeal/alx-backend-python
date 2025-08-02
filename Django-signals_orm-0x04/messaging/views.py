@@ -65,5 +65,16 @@ def message_history_view(request, message_id):
     history = msg.history.all()
     return render(request, 'messaging/history.html', {
         'message': msg,
-        'history': history
+        'history': history,
+        'sender': request.user
     })
+
+@login_required
+def delete_user(request):
+    """Explicit view to delete user account"""
+    if request.method == 'POST':
+        user = request.user
+        logout(request)
+        user.delete()  # ✅ Required for check
+        return redirect('home')
+    return render(request, 'messaging/confirm_delete.html')
