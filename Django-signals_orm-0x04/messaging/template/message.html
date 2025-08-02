@@ -1,14 +1,28 @@
-<!-- templates/message_detail.html -->
-<h2>{{ message.content }}</h2>
-{% if message.edited %}
-  <p>(Edited)</p>
-  <h3>Edit History:</h3>
-  <ul>
-    {% for entry in history %}
-      <li>
-        [{{ entry.edited_at|date:"Y-m-d H:i" }}]: 
-        {{ entry.old_content }}
-      </li>
-    {% endfor %}
-  </ul>
-{% endif %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Message History</title>
+</head>
+<body>
+    <h1>Message Detail</h1>
+    <div class="message">
+        <strong>From:</strong> {{ message.sender.username }}<br>
+        <strong>To:</strong> {{ message.receiver.username }}<br>
+        <strong>Sent:</strong> {{ message.timestamp|date:"M d, Y H:i" }}<br>
+        <p>{{ message.content }}</p>
+        {% if message.edited %}<em>(edited)</em>{% endif %}
+    </div>
+    
+    {% if history %}
+    <h2>Edit History</h2>
+    <ul>
+        {% for entry in history %}
+        <li>
+            <strong>{{ entry.edited_at|date:"M d, Y H:i" }}:</strong>
+            {{ entry.old_content }}
+        </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+</body>
+</html>
