@@ -65,5 +65,6 @@ def message_history(request, message_id):
     history = message.history.all()
     return render(request, 'messaging/message_history.html', {
         'message': message,
-        'history': history
+        'history': history,
+        'sender': request.user
     })
