@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Your Messages</title>
+    <style>
+        .message-item {
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #eee;
+        }
+        .edited-indicator {
+            color: #888;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <h1>Your Messages</h1>
+    
+    {% for message in messages %}
+    <div class="message-item">
+        <p>
+            <strong>From:</strong> {{ message.sender.username }} |
+            <strong>To:</strong> {{ message.receiver.username }} |
+            <strong>Date:</strong> {{ message.timestamp|date:"M d, Y" }}
+        </p>
+        <p>{{ message.content|truncatewords:20 }}</p>
+        {% if message.edited %}
+            <p class="edited-indicator">(Edited)</p>
+        {% endif %}
+        <a href="{% url 'message_history' message.id %}">View History</a>
+    </div>
+    {% empty %}
+    <p>No messages found</p>
+    {% endfor %}
+</body>
+</html>

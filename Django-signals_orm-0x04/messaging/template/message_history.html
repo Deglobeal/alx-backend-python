@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Message History</title>
+    <style>
+        .history-container {
+            margin: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .current-message {
+            background-color: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-left: 4px solid #4CAF50;
+        }
+        .history-item {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-left: 4px solid #2196F3;
+            background-color: #f1f8ff;
+        }
+        .timestamp {
+            font-size: 0.85em;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="history-container">
+        <h1>Message History</h1>
+        
+        <div class="current-message">
+            <h2>Current Version</h2>
+            <p><strong>From:</strong> {{ message.sender.username }}</p>
+            <p><strong>To:</strong> {{ message.receiver.username }}</p>
+            <p><strong>Last Updated:</strong> <span class="timestamp">{{ message.timestamp|date:"M d, Y H:i" }}</span></p>
+            <p>{{ message.content }}</p>
+            {% if message.edited %}<p><em>(Edited)</em></p>{% endif %}
+        </div>
+        
+        {% if history %}
+        <h2>Previous Versions</h2>
+        {% for entry in history %}
+        <div class="history-item">
+            <p><strong>Version #{{ forloop.revcounter }}</strong></p>
+            <p><strong>Edited at:</strong> <span class="timestamp">{{ entry.edited_at|date:"M d, Y H:i" }}</span></p>
+            <p>{{ entry.old_content }}</p>
+        </div>
+        {% endfor %}
+        {% else %}
+        <p>No edit history available</p>
+        {% endif %}
+        
+        <a href="{% url 'message_list' %}">Back to messages</a>
+    </div>
+</body>
+</html>

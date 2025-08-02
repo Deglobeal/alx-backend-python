@@ -12,11 +12,14 @@ class Message(models.Model):
 
     def __str__(self):
         return f"{self.sender} to {self.receiver}: {self.content[:20]}"
-
+    
 class MessageHistory(models.Model):
     message = models.ForeignKey(Message, on_delete=models.CASCADE, related_name='history')
     old_content = models.TextField()
     edited_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-edited_at']  # Newest edits first
 
     def __str__(self):
         return f"Edit at {self.edited_at} for Message #{self.message.pk}"
