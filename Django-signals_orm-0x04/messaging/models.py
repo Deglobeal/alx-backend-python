@@ -28,7 +28,7 @@ class Message(models.Model):
 
     # Managers
     objects = models.Manager()  # Default manager
-    unread = MessageManager()   # Custom manager for unread messages
+    unread = UnreadMessagesManager()   # Custom manager for unread messages
 
     class Meta:
         ordering = ['-timestamp']
