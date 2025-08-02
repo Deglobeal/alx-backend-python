@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Unread Messages</title>
+    <style>
+        .unread-container { max-width: 800px; margin: 2rem auto; padding: 1.5rem; }
+        .message-item { padding: 1rem; margin-bottom: 1rem; border: 1px solid #dee2e6; border-radius: 8px; }
+        .message-header { display: flex; justify-content: space-between; margin-bottom: 0.5rem; }
+        .sender { font-weight: bold; }
+        .timestamp { color: #6c757d; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+    <div class="unread-container">
+        <h1>Your Unread Messages</h1>
+        
+        {% for message in unread_messages %}
+        <div class="message-item">
+            <div class="message-header">
+                <span class="sender">From: {{ message.sender.username }}</span>
+                <span class="timestamp">{{ message.timestamp|date:"M d, Y" }}</span>
+            </div>
+            <p>{{ message.content }}</p>
+        </div>
+        {% empty %}
+        <p>No unread messages</p>
+        {% endfor %}
+    </div>
+</body>
+</html>

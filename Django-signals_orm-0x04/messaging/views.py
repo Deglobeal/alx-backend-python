@@ -2,7 +2,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
 from django.views.decorators.cache import cache_page
-from .models import Message, Notification
+from django.db.models import Prefetch
+from .models import Message, User
 
 @login_required
 def delete_user(request):
@@ -19,13 +20,30 @@ def delete_user(request):
 def conversation_thread(request, user_id):
     """View conversation thread between current user and another user"""
     other_user = get_object_or_404(User, id=user_id)
-    messages = Message.objects.conversation_between(
+    
+    # Get all messages in the conversation
+    messages = Message.objects.conversation_thread(
         request.user, other_user
-    ).filter(parent_message__isnull=True)  # Only top-level messages
+    ).select_related('sender', 'receiver')
+    
+    # Build threaded structure
+    messages_dict = {}
+    for message in messages:
+        message.replies = []
+        messages_dict[message.id] = message
+    
+    root_messages = []
+    for message in messages:
+        if message.parent_message_id:
+            parent = messages_dict.get(message.parent_message_id)
+            if parent:
+                parent.replies.append(message)
+        else:
+            root_messages.append(message)
     
     return render(request, 'messaging/conversation.html', {
         'other_user': other_user,
-        'messages': messages
+        'messages': root_messages
     })
 
 @login_required
@@ -49,19 +67,3 @@ def message_history(request, message_id):
         'message': message,
         'history': history
     })
-
-@login_required
-def create_reply(request, parent_id):
-    """Create a reply to a message"""
-    parent_message = get_object_or_404(Message, id=parent_id)
-    
-    if request.method == 'POST':
-        content = request.POST.get('content', '').strip()
-        if content:
-            Message.objects.create(
-                sender=request.user,
-                receiver=parent_message.sender if request.user == parent_message.receiver else parent_message.receiver,
-                content=content,
-                parent_message=parent_message
-            )
-    return redirect('conversation_thread', user_id=parent_message.sender.pk)

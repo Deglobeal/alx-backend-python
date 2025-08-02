@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
-from django.db.models import Q, F
+from django.db.models import Q
 
 User = get_user_model()
 
@@ -9,12 +9,12 @@ class MessageManager(models.Manager):
         """Custom manager method for unread messages"""
         return self.filter(receiver=user, read=False)
     
-    def conversation_between(self, user1, user2):
+    def conversation_thread(self, user1, user2):
         """Get conversation thread between two users"""
         return self.filter(
             (Q(sender=user1) & Q(receiver=user2)) | 
             (Q(sender=user2) & Q(receiver=user1))
-        ).select_related('sender', 'receiver').prefetch_related('replies')
+        ).order_by('timestamp')
 
 class Message(models.Model):
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages')
@@ -26,8 +26,8 @@ class Message(models.Model):
     parent_message = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='replies')
 
     # Managers
-    objects = MessageManager()
-    unread = MessageManager()  # Custom manager for unread messages
+    objects = models.Manager()  # Default manager
+    unread = MessageManager()   # Custom manager for unread messages
 
     class Meta:
         ordering = ['-timestamp']

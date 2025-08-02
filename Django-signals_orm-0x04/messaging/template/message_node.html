@@ -1,0 +1,15 @@
+<div class="message {% if depth > 0 %}reply{% endif %}">
+    <div class="message-header">
+        <span class="sender">{{ message.sender.username }}</span>
+        <span class="timestamp">{{ message.timestamp|date:"M d, Y H:i" }}</span>
+    </div>
+    <p>{{ message.content }}</p>
+    
+    {% if message.replies %}
+        <div class="replies">
+            {% for reply in message.replies %}
+                {% include "messaging/message_node.html" with message=reply depth=depth|add:1 %}
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>

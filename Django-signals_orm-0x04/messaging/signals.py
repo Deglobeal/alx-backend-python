@@ -26,6 +26,6 @@ def create_message_notification(sender, instance, created, **kwargs):
 
 @receiver(post_delete, sender=User)
 def delete_user_related(sender, instance, **kwargs):
-    # Delete all related data using cascade (handled by DB)
-    # No explicit delete needed due to on_delete=CASCADE
+    # CASCADE deletes handle related data automatically
+    # No explicit deletion needed due to on_delete=CASCADE
     pass
