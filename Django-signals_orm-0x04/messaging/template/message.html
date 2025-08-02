@@ -1,0 +1,14 @@
+<!-- templates/message_detail.html -->
+<h2>{{ message.content }}</h2>
+{% if message.edited %}
+  <p>(Edited)</p>
+  <h3>Edit History:</h3>
+  <ul>
+    {% for entry in history %}
+      <li>
+        [{{ entry.edited_at|date:"Y-m-d H:i" }}]: 
+        {{ entry.old_content }}
+      </li>
+    {% endfor %}
+  </ul>
+{% endif %}
