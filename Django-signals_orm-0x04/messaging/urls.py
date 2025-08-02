@@ -2,8 +2,8 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('delete-user/', views.delete_user, name='delete_user'),
-    path('conversation/<int:user_id>/', views.conversation_thread, name='conversation_thread'),
-    path('unread/', views.unread_messages, name='unread_messages'),
-    path('message/<int:message_id>/history/', views.message_history, name='message_history'),
+    path('delete-account/', views.account_delete, name='account_delete'),
+    path('conversation/<int:user_id>/', views.conversation_view, name='conversation'),
+    path('unread/', views.unread_view, name='unread'),
+    path('message/<int:message_id>/history/', views.message_history_view, name='history'),
 ]

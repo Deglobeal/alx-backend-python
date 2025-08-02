@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.db.models import Q
+from .managers import UnreadMessagesManager
 
 User = get_user_model()
 
@@ -55,3 +56,4 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"Notification for {self.user.username} about message #{self.message.pk}"
+    
