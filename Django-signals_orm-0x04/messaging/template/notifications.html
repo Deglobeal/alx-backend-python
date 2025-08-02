@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Notifications</title>
+</head>
+<body>
+    <h1>Your Notifications</h1>
+    
+    {% for notification in notifications %}
+    <div class="notification {% if not notification.is_read %}unread{% endif %}">
+        <p>
+            New message from {{ notification.message.sender.username }}
+            <small>{{ notification.created_at|timesince }} ago</small>
+        </p>
+        <blockquote>{{ notification.message.content|truncatewords:10 }}</blockquote>
+    </div>
+    {% empty %}
+    <p>No notifications</p>
+    {% endfor %}
+</body>
+</html>
