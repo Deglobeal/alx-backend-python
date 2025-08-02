@@ -6,10 +6,6 @@ from .managers import UnreadMessagesManager
 User = get_user_model()
 
 class MessageManager(models.Manager):
-    def unread_for_user(self, user):
-        """Custom manager method for unread messages"""
-        return self.filter(receiver=user, read=False)
-    
     def conversation_thread(self, user1, user2):
         """Get conversation thread between two users"""
         return self.filter(
@@ -27,7 +23,7 @@ class Message(models.Model):
     parent_message = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='replies')
 
     # Managers
-    objects = models.Manager()  # Default manager
+    objects = MessageManager()  # Default manager with conversation_thread
     unread = UnreadMessagesManager()   # Custom manager for unread messages
 
     class Meta:
@@ -56,4 +52,3 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"Notification for {self.user.username} about message #{self.message.pk}"
-    

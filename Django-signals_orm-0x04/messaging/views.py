@@ -21,10 +21,10 @@ def account_delete(request):
 def conversation_view(request, user_id):
     other_account = get_object_or_404(User, id=user_id)
 
-    # Get messages in conversation
-    messages = Message.objects.conversation_between(
+    # Get messages in conversation (fixed method name)
+    messages = Message.objects.conversation_thread(
         request.user, other_account
-    ).prefetch_related('replies')  # fixed from 'children' to 'replies'
+    )
 
     # Build threaded structure
     message_dict = {}
