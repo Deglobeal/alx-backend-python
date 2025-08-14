@@ -1,0 +1,48 @@
+#!/bin/bash
+# kurbeScript - Start Kubernetes cluster locally using Minikube
+
+set -e
+
+# Function to install Minikube if not found
+install_minikube() {
+    echo "📥 Installing Minikube..."
+    if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
+        curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-windows-amd64.exe
+        mkdir -p ~/bin
+        mv minikube-windows-amd64.exe ~/bin/minikube.exe
+        export PATH=$PATH:$HOME/bin
+        echo 'export PATH=$PATH:$HOME/bin' >> ~/.bashrc
+        echo "✅ Minikube installed for Windows!"
+    elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+        sudo install minikube-linux-amd64 /usr/local/bin/minikube
+        echo "✅ Minikube installed for Linux!"
+    elif [[ "$OSTYPE" == "darwin"* ]]; then
+        brew install minikube
+        echo "✅ Minikube installed for macOS!"
+    fi
+}
+
+# Check and install Minikube
+if ! command -v minikube &> /dev/null; then
+    echo "⚠️ Minikube not found."
+    install_minikube
+fi
+
+# Check if kubectl is installed
+if ! command -v kubectl &> /dev/null; then
+    echo "❌ kubectl not found. Please install it: https://kubernetes.io/docs/tasks/tools/"
+    exit 1
+fi
+
+# Start Minikube
+echo "🚀 Starting Minikube cluster..."
+minikube start
+
+# Show cluster info
+kubectl cluster-info
+
+# Show pods
+kubectl get pods --all-namespaces
+
+echo "🎉 Kubernetes setup complete!"
