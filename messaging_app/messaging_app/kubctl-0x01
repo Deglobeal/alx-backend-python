@@ -1,0 +1,45 @@
+#!/bin/bash
+# kubctl-0x01 - Scale Django app and test resources
+
+set -e  # Exit on any error
+
+DEPLOYMENT_NAME="django-messaging-app"
+NAMESPACE="default"  # adjust if your deployment is in another namespace
+
+# 1. Scale deployment to 3 replicas
+echo "э║А Scaling deployment $DEPLOYMENT_NAME to 3 replicas..."
+kubectl scale deployment $DEPLOYMENT_NAME --replicas=3
+
+# Wait a few seconds for pods to spin up
+sleep 5
+
+# 2. Verify pods are running
+echo "э│Л Current pods:"
+kubectl get pods -o wide
+
+# 3. Load testing with wrk
+# Make sure wrk is installed and service is accessible via port-forward
+SERVICE_NAME="django-messaging-service"
+PORT=8000
+
+echo "э┤Д Starting port-forward to access the service locally..."
+kubectl port-forward service/$SERVICE_NAME $PORT:$PORT &
+PF_PID=$!
+sleep 2
+
+if ! command -v wrk &> /dev/null; then
+    echo "тЪая╕П wrk not found. Install wrk for load testing: https://github.com/wg/wrk"
+else
+    echo "тЪб Running load test on http://localhost:$PORT ..."
+    wrk -t2 -c10 -d10s http://localhost:$PORT/
+fi
+
+# Kill the port-forward process
+kill $PF_PID
+
+# 4. Monitor resource usage
+echo "э│К Pod resource usage:"
+kubectl top pods
+
+echo "э╛Й Scaling and testing complete!"
+
