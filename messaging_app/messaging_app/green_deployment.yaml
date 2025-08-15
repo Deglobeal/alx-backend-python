@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: messaging-app-green
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: messaging-app
+      version: green
+  template:
+    metadata:
+      labels:
+        app: messaging-app
+        version: green
+    spec:
+      containers:
+        - name: django-container
+          image: your-django-image:green  # Replace with green version image
+          ports:
+            - containerPort: 8000
