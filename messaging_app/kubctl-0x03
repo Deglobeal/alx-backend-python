@@ -1,0 +1,23 @@
+#!/bin/bash
+
+DEPLOYMENT_FILE="blue_deployment.yaml"
+SERVICE_URL="http://messaging.local/api/"   # Change to your service URL or Minikube IP
+
+echo "Ì∫Ä Applying rolling update..."
+kubectl apply -f $DEPLOYMENT_FILE
+
+echo "Ì≥° Monitoring rollout status..."
+kubectl rollout status deployment/messaging-app-blue
+
+echo "Ì¥ç Testing application for downtime..."
+for i in {1..20}; do
+  curl -s -o /dev/null -w "%{http_code} " $SERVICE_URL
+  sleep 1
+done
+echo
+
+echo "‚úÖ Checking current pods..."
+kubectl get pods -l app=messaging-app,version=blue -o wide
+
+echo "ÌæØ Rolling update complete!"
+
