@@ -1,23 +1,28 @@
 #!/bin/bash
 
-DEPLOYMENT_FILE="blue_deployment.yaml"
-SERVICE_URL="http://messaging.local/api/"   # Change to your service URL or Minikube IP
+DEPLOYMENT_FILE="messaging_app/blue_deployment.yaml"
+SERVICE_URL="http://messaging.local/api/"  # Change to your service endpoint
 
-echo "Ì∫Ä Applying rolling update..."
-kubectl apply -f $DEPLOYMENT_FILE
+# Check if file exists and is not empty
+if [ ! -s "$DEPLOYMENT_FILE" ]; then
+    echo "‚ùå Deployment file is missing or empty: $DEPLOYMENT_FILE"
+    exit 1
+fi
 
-echo "Ì≥° Monitoring rollout status..."
+echo "üöÄ Applying rolling update..."
+kubectl apply -f "$DEPLOYMENT_FILE"
+
+echo "üì° Monitoring rollout status..."
 kubectl rollout status deployment/messaging-app-blue
 
-echo "Ì¥ç Testing application for downtime..."
+echo "üîç Testing application for downtime..."
 for i in {1..20}; do
-  curl -s -o /dev/null -w "%{http_code} " $SERVICE_URL
-  sleep 1
+    HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$SERVICE_URL")
+    echo "Request $i ‚Üí HTTP $HTTP_CODE"
+    sleep 1
 done
-echo
 
 echo "‚úÖ Checking current pods..."
 kubectl get pods -l app=messaging-app,version=blue -o wide
 
-echo "ÌæØ Rolling update complete!"
-
+echo "üéØ Rolling update complete!"
