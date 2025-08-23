@@ -8,11 +8,18 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                checkout scm
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: '*/main']],
+                    userRemoteConfigs: [[
+                        url: 'https://github.com/alx-backend-python.git',
+                        credentialsId: 'github'
+                    ]]
+                ])
             }
         }
 
-        stage('Virtual-env & deps') {
+        stage('Virtual-env & dependencies') {
             steps {
                 sh '''#!/bin/bash
                     python3 -m venv ${VENV_DIR}
@@ -35,7 +42,7 @@ pipeline {
             }
         }
 
-        stage('Publish Reports') {
+        stage('Publish reports') {
             steps {
                 junit 'messaging_app/test-results.xml'
                 publishHTML([
