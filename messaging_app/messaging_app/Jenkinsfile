@@ -1,61 +1,51 @@
 pipeline {
     agent any
 
+    tools {
+        python 'Python3'  // make sure Python is installed in Jenkins
+    }
+
     environment {
-        VENV_DIR = "${WORKSPACE}/venv"
+        GITHUB_CREDENTIALS = credentials('github-creds')
     }
 
     stages {
         stage('Checkout') {
             steps {
-                checkout([
-                    $class: 'GitSCM',
-                    branches: [[name: '*/main']],
-                    userRemoteConfigs: [[
-                        url: 'https://github.com/alx-backend-python.git',
-                        credentialsId: 'github'
-                    ]]
-                ])
+                git branch: 'main',
+                    url: 'https://github.com/Deglobeal/alx-backend-python',
+                    credentialsId: 'github-creds'
             }
         }
 
-        stage('Virtual-env & dependencies') {
+        stage('Setup Python Env') {
             steps {
-                sh '''#!/bin/bash
-                    python3 -m venv ${VENV_DIR}
-                    source ${VENV_DIR}/bin/activate
-                    pip install --upgrade pip
-                    pip install -r messaging_app/requirements.txt
+                script {
+                    // Use ShiningPanda to create a virtualenv
+                    def pythonEnv = python.withVirtualenv('venv') {
+                        sh 'pip install --upgrade pip'
+                        sh 'pip install -r messaging_app/requirements.txt'
+                    }
+                }
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                sh '''
+                    cd messaging_app
+                    pytest --junitxml=pytest-report.xml
                 '''
             }
-        }
-
-        stage('Run pytest') {
-            steps {
-                sh '''#!/bin/bash
-                    source ${VENV_DIR}/bin/activate
-                    pytest messaging_app/tests \
-                           --junitxml=messaging_app/test-results.xml \
-                           --cov=messaging_app \
-                           --cov-report=html:messaging_app/htmlcov
-                '''
-            }
-        }
-
-        stage('Publish reports') {
-            steps {
-                junit 'messaging_app/test-results.xml'
-                publishHTML([
-                    allowMissing: false,
-                    alwaysLinkToLastBuild: true,
-                    keepAll: true,
-                    reportDir:   'messaging_app/htmlcov',
-                    reportFiles: 'index.html',
-                    reportName:  'Coverage Report'
-                ])
+            post {
+                always {
+                    junit 'messaging_app/pytest-report.xml'
+                }
             }
         }
     }
 
-    post { always { cleanWs() } }
+    triggers {
+        // manual trigger only, no SCM polling
+    }
 }
