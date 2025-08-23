@@ -3,6 +3,8 @@ pipeline {
 
     environment {
         GITHUB_CREDENTIALS = credentials('github-creds')
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds')
+        DOCKER_IMAGE = "your-dockerhub-username/messaging_app"
     }
 
     stages {
@@ -33,6 +35,25 @@ pipeline {
             post {
                 always {
                     junit 'messaging_app/pytest-report.xml'
+                }
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh '''
+                    cd messaging_app
+                    docker build -t $DOCKER_IMAGE:latest .
+                '''
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                withDockerRegistry([ credentialsId: 'dockerhub-creds', url: '' ]) {
+                    sh '''
+                        docker push $DOCKER_IMAGE:latest
+                    '''
                 }
             }
         }
