@@ -1,0 +1,54 @@
+pipeline {
+    agent any
+
+    environment {
+        VENV_DIR = "${WORKSPACE}/venv"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Virtual-env & deps') {
+            steps {
+                sh '''#!/bin/bash
+                    python3 -m venv ${VENV_DIR}
+                    source ${VENV_DIR}/bin/activate
+                    pip install --upgrade pip
+                    pip install -r messaging_app/requirements.txt
+                '''
+            }
+        }
+
+        stage('Run pytest') {
+            steps {
+                sh '''#!/bin/bash
+                    source ${VENV_DIR}/bin/activate
+                    pytest messaging_app/tests \
+                           --junitxml=messaging_app/test-results.xml \
+                           --cov=messaging_app \
+                           --cov-report=html:messaging_app/htmlcov
+                '''
+            }
+        }
+
+        stage('Publish Reports') {
+            steps {
+                junit 'messaging_app/test-results.xml'
+                publishHTML([
+                    allowMissing: false,
+                    alwaysLinkToLastBuild: true,
+                    keepAll: true,
+                    reportDir:   'messaging_app/htmlcov',
+                    reportFiles: 'index.html',
+                    reportName:  'Coverage Report'
+                ])
+            }
+        }
+    }
+
+    post { always { cleanWs() } }
+}
